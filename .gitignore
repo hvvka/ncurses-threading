@@ -2,7 +2,10 @@ CMakeFiles/
 cmake_install.cmake
 CMakeCache.txt
 Makefile
-Threader
+Snake
+
+# MacOS trash files
+.DS_Store
 
 # Prerequisites
 *.d
