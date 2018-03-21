@@ -7,13 +7,14 @@
 using namespace std;
 #define DELAY 60000
 
-void make_ball(WINDOW *w, int y)
+void make_ball(WINDOW *w, int x, int y)
 {
-  int x = 0;
   int max_y = 0, max_x = 0;
   int next_x = 0;
-  int direction = 1;
-
+  int next_y = 0;
+  int direction_x = 1;
+  int direction_y = 1;
+  int change_direction = 0;
   getmaxyx(w, max_y, max_x);
 
   while (1)
@@ -23,16 +24,26 @@ void make_ball(WINDOW *w, int y)
     mvwprintw(w, y, x, "o");
 
     usleep(DELAY);
+    
+    next_x = x + direction_x;
+    next_y = y + direction_y;  
 
-    next_x = x + direction;
-
-    if (next_x >= max_x || next_x < 0)
+    if (next_x >= max_x-1 || next_x < 1)
     {
-      direction *= -1;
+      direction_x *= -1;
     }
     else
     {
-      x += direction;
+      x += direction_x;
+    }
+
+    if (next_y >= max_y-1 || next_y < 1)
+    {
+      direction_y *= -1;
+    }
+    else
+    {
+      y += direction_y;
     }
   }
 }
@@ -91,10 +102,10 @@ int main(int argc, char *argv[])
   mvwaddstr(d, 0, 0, "");
   wrefresh(d);
 
-  thread t1(make_ball, a, 5);
-  thread t2(make_ball, b, 5);
-  thread t3(make_ball, c, 5);
-  thread t4(make_ball, d, 5);
+  thread t1(make_ball, a, 0, 0);
+  thread t2(make_ball, b, 0, 0);
+  thread t3(make_ball, c, 0, 0);
+  thread t4(make_ball, d, 0, 0);
   thread t5(refresh_windows, a, b, c, d);
 
   t1.join();
