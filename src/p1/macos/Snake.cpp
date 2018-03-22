@@ -21,6 +21,7 @@ void make_ball(WINDOW *w, int y, int x)
   {
     snake.push_back(std::make_pair(y,i));
   }
+  std::vector<std::pair<int, int>> prev_snake(snake);
 
   int max_y = 0, max_x = 0;
   int next_x = x;
@@ -36,14 +37,19 @@ void make_ball(WINDOW *w, int y, int x)
     // wclear(w);
     // box(w,0,0);
 
-    //paint snake
-    mx.lock();
-    for (std::vector<std::pair<int,int>>::iterator it=snake.begin(); it!=snake.end(); ++it)
-    {
-      mvwprintw(w, it->first, it->second, "O");
+   {
+      // clear snake
+      std::lock_guard<std::mutex> mx_lock(mx);
+      for (std::vector<std::pair<int,int>>::iterator it=prev_snake.begin(); it!=prev_snake.end(); ++it)
+      {
+        mvwprintw(w, it->first, it->second, " ");
+      }
+      //paint snake
+      for (std::vector<std::pair<int,int>>::iterator it=snake.begin(); it!=snake.end(); ++it)
+      {
+        mvwprintw(w, it->first, it->second, "O");
+      }
     }
-    mx.unlock();
-
     usleep(DELAY);
 
     //choose random direction after 5 steps
@@ -86,14 +92,8 @@ void make_ball(WINDOW *w, int y, int x)
     x += direction_x;
     y += direction_y;
 
-    // clear snake
-    mx.lock();
-    for (std::vector<std::pair<int,int>>::iterator it=snake.begin(); it!=snake.end(); ++it)
-    {
-      mvwprintw(w, it->first, it->second, " ");
-    }
-    mx.unlock();
-
+    //for clearing snake
+    prev_snake = snake;
     //increment snake
     snake.erase(snake.begin()); //removes first element (snake's ass)
     snake.push_back(std::make_pair(y, x));
@@ -105,10 +105,13 @@ void make_ball(WINDOW *w, int y, int x)
 void refresh_windows(WINDOW *a, WINDOW *b, WINDOW *c, WINDOW *d)
 {
   while(1) {
-    wrefresh(a);
-    wrefresh(b);
-    wrefresh(c);
-    wrefresh(d);
+    {
+      std::lock_guard<std::mutex> mx_lock(mx);
+      wrefresh(a);
+      wrefresh(b);
+      wrefresh(c);
+      wrefresh(d);
+    }
     usleep(DELAY);
   }
 }
