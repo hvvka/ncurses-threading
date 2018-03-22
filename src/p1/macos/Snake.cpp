@@ -1,5 +1,6 @@
 #include <iostream>
 #include <thread>
+#include <mutex>
 #include <ncurses.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -7,15 +8,16 @@
 #include <algorithm>
 #include <vector>
 
-using namespace std;
-#define DELAY 100000
+#define DELAY 60000
 #define SNAKE_LENGHT 10
+
+std::mutex mx;
 
 void make_ball(WINDOW *w, int y, int x)
 {
   //set snake coords
   std::vector<std::pair<int, int>> snake;
-  for (int i = x-SNAKE_LENGHT; i <= x; ++i)
+  for (int i = x-SNAKE_LENGHT-1; i <= x; ++i)
   {
     snake.push_back(std::make_pair(y,i));
   }
@@ -31,14 +33,18 @@ void make_ball(WINDOW *w, int y, int x)
 
   while (1)
   {
-    wclear(w);
-    box(w,0,0);
+    // wclear(w);
+    // box(w,0,0);
 
     //paint snake
+    mx.lock();
     for (std::vector<std::pair<int,int>>::iterator it=snake.begin(); it!=snake.end(); ++it)
     {
       mvwprintw(w, it->first, it->second, "O");
     }
+    mx.unlock();
+
+    usleep(DELAY);
 
     //choose random direction after 5 steps
     if (change_direction == 5)
@@ -51,7 +57,6 @@ void make_ball(WINDOW *w, int y, int x)
       change_direction = 0;
     }
 
-    usleep(DELAY);
 
     next_x = x + direction_x;
     next_y = y + direction_y;  
@@ -81,9 +86,17 @@ void make_ball(WINDOW *w, int y, int x)
     x += direction_x;
     y += direction_y;
 
+    // clear snake
+    mx.lock();
+    for (std::vector<std::pair<int,int>>::iterator it=snake.begin(); it!=snake.end(); ++it)
+    {
+      mvwprintw(w, it->first, it->second, " ");
+    }
+    mx.unlock();
+
     //increment snake
     snake.erase(snake.begin()); //removes first element (snake's ass)
-    snake.push_back(make_pair(y, x));
+    snake.push_back(std::make_pair(y, x));
 
     change_direction++;
   }
@@ -122,12 +135,31 @@ int main(int argc, char *argv[])
   b = newwin(halfy, halfx, 0, halfx);
   c = newwin(halfy, halfx, halfy, 0);
   d = newwin(halfy, halfx, halfy, halfx);
+
+  /* colors */
+  start_color();
+  init_color(COLOR_RED, 300, 100, 150);
+  init_color(COLOR_CYAN, 40, 200, 300);
+  init_color(COLOR_YELLOW, 300, 330, 70);
+  init_color(COLOR_MAGENTA, 80, 300, 200);
+  init_pair(1,COLOR_WHITE, COLOR_RED);
+  init_pair(2,COLOR_WHITE, COLOR_CYAN);
+  init_pair(3,COLOR_WHITE, COLOR_YELLOW);
+  init_pair(4,COLOR_WHITE, COLOR_MAGENTA);
+  wbkgd(a, COLOR_PAIR(1));
+  wbkgd(b, COLOR_PAIR(2));
+  wbkgd(c, COLOR_PAIR(3));
+  wbkgd(d, COLOR_PAIR(4));
+  box(a,0,0);
+  box(b,0,0);
+  box(c,0,0);
+  box(d,0,0);
   
-  thread t1(make_ball, a, halfy/2, halfx/2);
-  thread t2(make_ball, b, halfy/2, halfx/2);
-  thread t3(make_ball, c, halfy/2, halfx/2);
-  thread t4(make_ball, d, halfy/2, halfx/2);
-  thread t5(refresh_windows, a, b, c, d);
+  std::thread t1(make_ball, a, halfy/2, halfx/2);
+  std::thread t2(make_ball, b, halfy/2, halfx/2);
+  std::thread t3(make_ball, c, halfy/2, halfx/2);
+  std::thread t4(make_ball, d, halfy/2, halfx/2);
+  std::thread t5(refresh_windows, a, b, c, d);
 
   t1.join();
   t2.join();
