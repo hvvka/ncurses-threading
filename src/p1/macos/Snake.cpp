@@ -13,7 +13,7 @@
 
 std::mutex mx;
 
-void make_ball(WINDOW *w, int y, int x)
+void create_snake(WINDOW *w, int y, int x)
 {
   //set snake coords
   std::vector<std::pair<int, int>> snake;
@@ -158,10 +158,10 @@ int main(int argc, char *argv[])
   box(c,0,0);
   box(d,0,0);
   
-  std::thread t1(make_ball, a, halfy/2, halfx/2);
-  std::thread t2(make_ball, b, halfy/2, halfx/2);
-  std::thread t3(make_ball, c, halfy/2, halfx/2);
-  std::thread t4(make_ball, d, halfy/2, halfx/2);
+  std::thread t1(create_snake, a, halfy/2, halfx/2);
+  std::thread t2(create_snake, b, halfy/2, halfx/2);
+  std::thread t3(create_snake, c, halfy/2, halfx/2);
+  std::thread t4(create_snake, d, halfy/2, halfx/2);
   std::thread t5(refresh_windows, a, b, c, d);
 
   t1.join();
