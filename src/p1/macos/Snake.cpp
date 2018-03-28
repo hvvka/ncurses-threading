@@ -34,18 +34,15 @@ void create_snake(WINDOW *w, int y, int x)
 
   while (1)
   {
-    // wclear(w);
-    // box(w,0,0);
-
-   {
+    {
       // clear snake
       std::lock_guard<std::mutex> mx_lock(mx);
-      for (std::vector<std::pair<int,int>>::iterator it=prev_snake.begin(); it!=prev_snake.end(); ++it)
+      for (auto it=prev_snake.begin(); it!=prev_snake.end(); ++it)
       {
         mvwprintw(w, it->first, it->second, " ");
       }
       //paint snake
-      for (std::vector<std::pair<int,int>>::iterator it=snake.begin(); it!=snake.end(); ++it)
+      for (auto it=snake.begin(); it!=snake.end(); ++it)
       {
         mvwprintw(w, it->first, it->second, "O");
       }
@@ -62,7 +59,6 @@ void create_snake(WINDOW *w, int y, int x)
       } while ((direction_x == 0 && direction_y == 0));
       change_direction = 0;
     }
-
 
     next_x = x + direction_x;
     next_y = y + direction_y;  
