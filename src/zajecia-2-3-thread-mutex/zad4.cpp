@@ -17,7 +17,7 @@ std::vector<std::string> words;
 
 void read(std::string filename)
 {
-  std::ifstream file("test.txt");
+  std::ifstream file(filename);
   if(file.is_open())
   {
     std::string word;
@@ -50,8 +50,7 @@ void has_words()
 
 int main()
 {
-  std::string line;
-	std::string filename;
+	std::string filename = "test.txt";
 
   std::thread t1(read, filename);
   std::thread t2(has_words);

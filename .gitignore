@@ -4,6 +4,10 @@ CMakeCache.txt
 Makefile
 Snake
 
+excluded/
+macos-refactor/
+project/
+
 # MacOS trash files
 .DS_Store
 
