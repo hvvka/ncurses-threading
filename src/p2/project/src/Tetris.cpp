@@ -52,12 +52,14 @@ void create_blocks(WINDOW *w)
 
         if (next_y >= max.first || next_y < 1)
         {
+            mx.lock();
             current.second = rand() % max.second + 1;
             current.first = 1;
             clean(w, tetris_block.type, prev.first, prev.second);
             tetris_block.y = TETRIS_Y(max.first);
             tetris_block.x = TETRIS_X(max.second);
             blocks.push_front(tetris_block);
+            mx.unlock();
             cv.notify_one();
             tetris_block.type = TETRIS_TYPE;
         } else
