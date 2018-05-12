@@ -12,17 +12,18 @@ class Application
 {
 private:
     bool running;
-    Curses* ncurses;
-    Army* army_red;
-    Army* army_blue;
+    Curses ncurses;
+    Army army_red;
+    Army army_blue;
 
     void start_threads();
+
     void refresh_windows(WINDOW *battle_window, WINDOW *info_window);
 
 public:
     Application();
+
     virtual ~Application();
-    void end_game();
 };
 
 

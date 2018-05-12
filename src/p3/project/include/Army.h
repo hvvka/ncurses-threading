@@ -6,20 +6,25 @@
 #define ARCHERS_ARMY_H
 
 #include <atomic>
+#include <vector>
 #include "Archer.h"
 
 class Army
 {
 private:
     army_type army_color;
-    std::list<Archer> army;
+    std::vector <Archer> army;
     std::atomic<int> score;
 
 public:
     explicit Army(army_type army_color);
+
     virtual ~Army() = default;
-    std::list<Archer> get_army();
+
+    std::vector <Archer> &get_archers();
+
     int get_score();
+
     army_type get_color();
 };
 

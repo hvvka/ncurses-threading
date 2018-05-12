@@ -4,7 +4,7 @@
 
 #include "Army.h"
 
-#define ARCHERS_COUNT 24
+#define ARCHERS_COUNT 1  // TODO change back to 24
 #define ROWS_NUMBER 6
 
 Army::Army(army_type army_color) : army_color{army_color}, score{0}
@@ -16,11 +16,11 @@ Army::Army(army_type army_color) : army_color{army_color}, score{0}
         x = i / ROWS_NUMBER;  // columns
         y = i % ROWS_NUMBER;  // rows
         position = std::make_pair(y, x);
-        army.push_back(*new Archer(position, army_color));
+        army.emplace_back(position, army_color);
     }
 }
 
-std::list<Archer> Army::get_army() //todo return reference
+std::vector <Archer> &Army::get_archers()
 {
     return army;
 }

@@ -18,13 +18,18 @@ private:
 
 public:
     Archer(std::pair<int, int> position, army_type army_color);
+
     virtual ~Archer() = default;
 
     int get_health_points();
+
     std::pair<int, int> get_position();
+
     army_type get_army_color();
-    void get_shot();
-    void shot_enemy(std::list<Archer>& enemies);
+
+    bool get_shot();
+
+    void shot_enemy(std::vector <Archer> &enemies);
 };
 
 

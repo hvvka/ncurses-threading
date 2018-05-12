@@ -5,8 +5,6 @@
 #include "Curses.h"
 #include "Semaphore.h"
 
-#include <cstdlib>
-#include <ctime>
 #include <thread>
 #include <sstream>
 
@@ -70,26 +68,26 @@ std::pair<int, int> Curses::get_max_window_size(WINDOW *window)
     return std::make_pair(max_y, max_x);
 }
 
-void Curses::place_army(std::pair<WINDOW *, WINDOW *> windows, Army *army)
+void Curses::place_army(std::pair<WINDOW *, WINDOW *> windows, Army &army)
 {
     place_archers(windows.first, army);
     print_score(windows.second, army);
 }
 
-void Curses::place_archers(WINDOW *battle_window, Army *army)
+void Curses::place_archers(WINDOW *battle_window, Army &army)
 {
     auto max_window_size = get_max_window_size(battle_window);
     int x = max_window_size.second / 10;
-    if (army->get_color() == BLUE) x *= 8;  // x offset for painting blue army
+    if (army.get_color() == BLUE) x *= 8;  // x offset for painting blue army
     auto coords = std::make_pair(max_window_size.first / 3, x);
 
-    for (auto const &archer : army->get_army())
+    for (auto archer : army.get_archers())
     {
         print_archer(battle_window, coords, archer);
     }
 }
 
-void Curses::print_archer(WINDOW *battle_window, std::pair<int, int> coords, Archer archer)
+void Curses::print_archer(WINDOW *battle_window, std::pair<int, int> coords, Archer &archer)
 {
     auto position = archer.get_position();
     int y = coords.first + 2 * position.first;
@@ -104,7 +102,7 @@ void Curses::print_archer(WINDOW *battle_window, std::pair<int, int> coords, Arc
     Semaphore::unlock();
 }
 
-int Curses::get_archer_color_pair(Archer archer)
+int Curses::get_archer_color_pair(Archer &archer)
 {
     army_type color = archer.get_army_color();
     int hp = archer.get_health_points();
@@ -113,18 +111,19 @@ int Curses::get_archer_color_pair(Archer archer)
 }
 
 
-void Curses::print_score(WINDOW *info_window, Army *army)
+void Curses::print_score(WINDOW *info_window, Army &army)
 {
     auto max_window_size = get_max_window_size(info_window);
-    int army_score = army->get_score();
+    int army_score = army.get_score();
 
     std::string basic_string = std::to_string(army_score);
     char const *score = basic_string.c_str();
 
-    int color = army->get_color() == BLUE ? 9 : 10;
-    int y = army->get_color() == BLUE ? 3 * max_window_size.first / 5 : 2 * max_window_size.first / 5;
+    int color = army.get_color() == BLUE ? 9 : 10;
+    int y = army.get_color() == BLUE ? 3 * max_window_size.first / 5 : 2 * max_window_size.first / 5;
     wattron(info_window,  COLOR_PAIR(color));
 
+    // todo how to display text "Score: " + score
 //    char *message = const_cast<char *>("Score: ");
 //    std::strcat(message, score);
 
