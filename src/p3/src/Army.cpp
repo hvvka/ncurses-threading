@@ -3,15 +3,19 @@
 //
 
 #include "Army.h"
+#include "Utility.h"
 
-#define ARCHERS_COUNT 1  // TODO change back to 24
-#define ROWS_NUMBER 6
+namespace
+{
+    constexpr auto ROWS_NUMBER = 6;
+} // namespace
 
-Army::Army(army_type army_color) : army_color{army_color}, score{0}
+
+Army::Army(army_type army_color) : army_color{army_color}
 {
     int x = 0, y = 0;
     std::pair<int, int> position;
-    for (int i = 0; i < ARCHERS_COUNT; ++i)
+    for (int i = 0; i < utility::ARCHERS_COUNT; ++i)
     {
         x = i / ROWS_NUMBER;  // columns
         y = i % ROWS_NUMBER;  // rows
@@ -20,7 +24,7 @@ Army::Army(army_type army_color) : army_color{army_color}, score{0}
     }
 }
 
-std::vector <Archer> &Army::get_archers()
+std::vector<Archer> &Army::get_archers()
 {
     return army;
 }

@@ -5,7 +5,8 @@
 #ifndef ARCHERS_ARMYTYPE_H
 #define ARCHERS_ARMYTYPE_H
 
-enum army_type {
+enum class army_type
+{
     RED,
     BLUE
 };

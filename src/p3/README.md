@@ -79,6 +79,8 @@ class Archer
 
 - [ ] Po zakończonej grze możliwość ponownego puszczenia symulacji.
 
+- [ ] Dodać "*pif paf*" w losowych miejscach podczas strzału.
+
 Wątki:
 
 - [ ] Generator wykonujący strzał.

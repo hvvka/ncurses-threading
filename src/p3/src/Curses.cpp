@@ -3,7 +3,7 @@
 //
 
 #include "Curses.h"
-#include "Semaphore.h"
+//#include "Semaphore.h"
 
 #include <thread>
 #include <sstream>
@@ -68,7 +68,7 @@ std::pair<int, int> Curses::get_max_window_size(WINDOW *window)
     return std::make_pair(max_y, max_x);
 }
 
-void Curses::place_army(std::pair<WINDOW *, WINDOW *> windows, Army &army)
+void Curses::place_army(std::pair<WINDOW *, WINDOW *> &windows, Army &army)
 {
     place_archers(windows.first, army);
     print_score(windows.second, army);
@@ -78,7 +78,7 @@ void Curses::place_archers(WINDOW *battle_window, Army &army)
 {
     auto max_window_size = get_max_window_size(battle_window);
     int x = max_window_size.second / 10;
-    if (army.get_color() == BLUE) x *= 8;  // x offset for painting blue army
+    if (army.get_color() == army_type::BLUE) x *= 8;  // x offset for painting blue army
     auto coords = std::make_pair(max_window_size.first / 3, x);
 
     for (auto archer : army.get_archers())
@@ -87,26 +87,24 @@ void Curses::place_archers(WINDOW *battle_window, Army &army)
     }
 }
 
-void Curses::print_archer(WINDOW *battle_window, std::pair<int, int> coords, Archer &archer)
+void Curses::print_archer(WINDOW *battle_window, std::pair<int, int> &coords, Archer &archer)
 {
     auto position = archer.get_position();
     int y = coords.first + 2 * position.first;
     int x = coords.second + 4 * position.second;
 
     int archer_hp = archer.get_health_points();
-    auto hp = static_cast<char>(archer_hp + '0');
+    auto hp = std::to_string(archer_hp).c_str()[0];  //static_cast<char>(archer_hp + '0');
     int archer_color = get_archer_color_pair(archer);
 
-    Semaphore::lock();
     mvwaddch(battle_window, y, x, HP(hp, archer_color));
-    Semaphore::unlock();
 }
 
 int Curses::get_archer_color_pair(Archer &archer)
 {
     army_type color = archer.get_army_color();
     int hp = archer.get_health_points();
-    int offset = color == BLUE ? 2 : 5;
+    int offset = (color == army_type::BLUE) ? 2 : 5;
     return hp + offset;
 }
 
@@ -116,20 +114,13 @@ void Curses::print_score(WINDOW *info_window, Army &army)
     auto max_window_size = get_max_window_size(info_window);
     int army_score = army.get_score();
 
-    std::string basic_string = std::to_string(army_score);
-    char const *score = basic_string.c_str();
+    int color = (army.get_color() == army_type::BLUE) ? 9 : 10;
+    int y = (army.get_color() == army_type::BLUE) ? 3 * max_window_size.first / 5 : 2 * max_window_size.first / 5;
+    wattron(info_window, COLOR_PAIR(color));
 
-    int color = army.get_color() == BLUE ? 9 : 10;
-    int y = army.get_color() == BLUE ? 3 * max_window_size.first / 5 : 2 * max_window_size.first / 5;
-    wattron(info_window,  COLOR_PAIR(color));
+    std::string message = "Score: " + std::to_string(army_score);
 
-    // todo how to display text "Score: " + score
-//    char *message = const_cast<char *>("Score: ");
-//    std::strcat(message, score);
-
-    Semaphore::lock();
-    mvwprintw(info_window, y, max_window_size.second / 4, score);
-    Semaphore::unlock();
+    mvwprintw(info_window, y, max_window_size.second / 4, message.c_str());
 }
 
 void Curses::end()

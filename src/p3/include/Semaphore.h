@@ -10,18 +10,23 @@
 
 class Semaphore
 {
-private:
-    Semaphore();
-    Semaphore( const Semaphore & );
-    static std::mutex mx;
-    static std::condition_variable cv;
-    static int counter;
-
 public:
+    Semaphore() = delete;
+
+    Semaphore(const Semaphore &) = delete;
+
     static void notify();
+
     static void wait();
+
     static void lock();
+
     static void unlock();
+
+private:
+    static std::condition_variable cv;
+    static std::mutex mx;
+    static int counter;
 };
 
 

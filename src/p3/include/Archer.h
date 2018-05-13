@@ -5,21 +5,15 @@
 #ifndef ARCHERS_ARCHER_H
 #define ARCHERS_ARCHER_H
 
-#include <iostream>
-#include <list>
 #include "ArmyType.h"
+
+#include <vector>
+#include <utility>
 
 class Archer
 {
-private:
-    int health_points;
-    std::pair<int, int> position;  // y, x
-    army_type army_color;
-
 public:
     Archer(std::pair<int, int> position, army_type army_color);
-
-    virtual ~Archer() = default;
 
     int get_health_points();
 
@@ -29,7 +23,12 @@ public:
 
     bool get_shot();
 
-    void shot_enemy(std::vector <Archer> &enemies);
+    void shot_enemy(std::vector<Archer> &enemies);
+
+private:
+    int health_points;
+    std::pair<int, int> position;  // y, x
+    army_type army_color;
 };
 
 

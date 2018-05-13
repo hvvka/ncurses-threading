@@ -2,8 +2,7 @@
 // Created by Hanna Grodzicka on 02.05.2018.
 //
 
-#include <utility>
-#include "../include/Archer.h"
+#include "Archer.h"
 #include "Semaphore.h"
 #include <random>
 
@@ -14,21 +13,25 @@ Archer::Archer(std::pair<int, int> position, army_type army_color) : health_poin
 bool Archer::get_shot()
 {
     --health_points;
-    if (health_points == 0)
+    if (health_points == -1)  // temporary fix
     {
-        Semaphore::notify();  // todo repaint and increase score
+//        Semaphore::notify();  // todo repaint and increase score
         return true;
     }
     return false;
 }
 
-void Archer::shot_enemy(std::vector <Archer> &enemies)
+void Archer::shot_enemy(std::vector<Archer> &enemies)
 {
-    unsigned long random_enemy_index = rand() % enemies.size();
+    auto random_enemy_index = rand() % enemies.size();
     auto it = enemies.begin();
     advance(it, random_enemy_index);
-    if (it->get_shot())
-        enemies.erase(it);  // todo why the enemy is no erased
+    it->get_shot();  // temporary
+    // todo add shot probability
+//    if (it->get_shot())
+//    {
+//        enemies.erase(it);
+//    }
 }
 
 int Archer::get_health_points()
