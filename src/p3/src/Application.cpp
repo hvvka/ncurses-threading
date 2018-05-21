@@ -12,7 +12,7 @@
 namespace
 {
     constexpr auto REFRESH_DELAY = 60000;
-    constexpr auto SHOT_DELAY = 600000;
+    constexpr auto SHOT_DELAY = 1200000;
 } // namespace
 
 Application::Application() : running{true}, army_red{army_type::RED}, army_blue{army_type::BLUE}, ncurses{}
@@ -55,9 +55,9 @@ void Application::refresh_windows(WINDOW *battle_window, WINDOW *info_window)
 
 void Application::start_archer(Archer &archer)
 {
+    std::unique_lock<std::mutex> lock(Semaphore::get_mutex());
     while (archer.get_health_points() != 0)
     {
-        Semaphore::lock();
         if (archer.get_army_color() == army_type::RED)
         {
             archer.shot_enemy(army_blue.get_archers());
@@ -65,11 +65,24 @@ void Application::start_archer(Archer &archer)
         {
             archer.shot_enemy(army_red.get_archers());
         }
-        Semaphore::unlock();
         usleep(SHOT_DELAY);
     }
 
-    // todo notify, że zdeh i ma usunąć się z wektora
+    // todo notify, że zdeh i ma usunąć się z wektora i zaktualizować wynik
+//    const auto &tmp = 0;
+    // TODO halp
+    Semaphore::get_condition_variable().wait(lock, [&]() { return archer.get_health_points() == 0; });
+    if (archer.get_army_color() == army_type::RED)
+    {
+        auto it = std::find(army_red.get_archers().begin(), army_red.get_archers().end(), archer);
+        army_red.get_archers().erase(it);
+        army_red.increase_score();
+    } else
+    {
+        auto it = std::find(army_blue.get_archers().begin(), army_blue.get_archers().end(), archer);
+        army_blue.get_archers().erase(it);
+        army_red.increase_score();
+    }
 }
 
 Application::~Application()

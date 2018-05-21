@@ -23,6 +23,10 @@ public:
 
     army_type get_color();
 
+    void increase_score();
+
+    void kill_archer(std::vector<Archer>::iterator &archer);
+
 private:
     army_type army_color;
     std::vector<Archer> army;

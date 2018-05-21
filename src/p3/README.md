@@ -38,9 +38,7 @@
 
 Łucznik z drużyny 1. strzela do losowego z łucznika z drużyny 2.
 
-Jeśli trafi, to leci notify dla `score_2` - wynik jest aktualizowany.
-
-Przeciwnikowi zmniejsza się HP (domyślnie 3 HP), reprintuje się na ekranie. Dla HP==0 wymazuje przeciwnika z ekranu i usuwa go z listy łuczników 2.
+Przeciwnikowi zmniejsza się HP (domyślnie 3 HP), reprintuje się na ekranie. Dla HP==0 wymazuje przeciwnika z ekranu i usuwa go z listy łuczników 2. Leci notify dla `score_2` - wynik jest aktualizowany.
 
 Symulacja się kończy, gdy jedna z list z list łuczników jest pusta - wygrywa bardziej żywy gracz.
 

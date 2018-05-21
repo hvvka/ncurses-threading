@@ -10,15 +10,13 @@ Archer::Archer(std::pair<int, int> position, army_type army_color) : health_poin
                                                                      army_color{army_color}
 {}
 
-bool Archer::get_shot()
+void Archer::get_shot()
 {
     --health_points;
-    if (health_points == -1)  // temporary fix
+    if (health_points == 0)
     {
-//        Semaphore::notify();  // todo repaint and increase score
-        return true;
+        Semaphore::get_condition_variable().notify_one(); // todo repaint and increase score
     }
-    return false;
 }
 
 void Archer::shot_enemy(std::vector<Archer> &enemies)
@@ -26,12 +24,8 @@ void Archer::shot_enemy(std::vector<Archer> &enemies)
     auto random_enemy_index = rand() % enemies.size();
     auto it = enemies.begin();
     advance(it, random_enemy_index);
-    it->get_shot();  // temporary
     // todo add shot probability
-//    if (it->get_shot())
-//    {
-//        enemies.erase(it);
-//    }
+    it->get_shot();
 }
 
 int Archer::get_health_points()

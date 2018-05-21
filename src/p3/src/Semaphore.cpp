@@ -32,3 +32,15 @@ void Semaphore::unlock()
     mx.unlock();
 }
 
+std::condition_variable &Semaphore::get_condition_variable()
+{
+    return cv;
+}
+
+std::mutex &Semaphore::get_mutex()
+{
+    return mx;
+}
+
+
+

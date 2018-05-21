@@ -39,4 +39,14 @@ army_type Army::get_color()
     return army_color;
 }
 
+void Army::increase_score()
+{
+    ++score;
+}
+
+void Army::kill_archer(std::vector<Archer>::iterator &archer)
+{
+    army.erase(archer);
+}
+
 

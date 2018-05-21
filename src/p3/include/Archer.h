@@ -21,7 +21,7 @@ public:
 
     army_type get_army_color();
 
-    bool get_shot();
+    void get_shot();
 
     void shot_enemy(std::vector<Archer> &enemies);
 
