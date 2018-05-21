@@ -9,6 +9,7 @@
 #include "Curses.h"
 
 #include <utility>
+#include <condition_variable>
 
 class Application final
 {
@@ -29,6 +30,10 @@ private:
     void refresh_windows(WINDOW *battle_window, WINDOW *info_window);
 
     void start_archer(Archer &archer);
+
+    void win_red();
+
+    void win_blue();
 };
 
 

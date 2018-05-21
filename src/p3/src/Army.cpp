@@ -24,6 +24,11 @@ Army::Army(army_type army_color) : army_color{army_color}
     }
 }
 
+Army::Army(const Army &copy_army) : army_color{copy_army.army_color}, army{copy_army.army}
+{
+
+}
+
 std::vector<Archer> &Army::get_archers()
 {
     return army;
@@ -37,6 +42,16 @@ int Army::get_score()
 army_type Army::get_color()
 {
     return army_color;
+}
+
+void Army::increase_score()
+{
+    ++score;
+}
+
+void Army::kill_archer(std::vector<Archer>::iterator &archer)
+{
+    army.erase(archer);
 }
 
 
