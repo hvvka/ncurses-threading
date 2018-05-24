@@ -27,7 +27,7 @@ private:
 
     void start_threads();
 
-    void refresh_windows(WINDOW *battle_window, WINDOW *info_window);
+    void refresh_windows();
 
     void start_archer(Archer &archer);
 

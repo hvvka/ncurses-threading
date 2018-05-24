@@ -23,7 +23,7 @@ public:
 
     void get_shot();
 
-    void shot_enemy(std::vector<Archer> &enemies);
+    bool shot_enemy(std::vector<Archer> &enemies);
 
 private:
     int health_points{3};
