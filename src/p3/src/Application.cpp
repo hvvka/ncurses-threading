@@ -106,13 +106,11 @@ void Application::start_archer(Archer &archer)
 //        auto it = std::find_if(army_red.get_archers().begin(), army_red.get_archers().end(), predicate);
 //        army_red.get_archers().erase(it);
         army_red.increase_score();
-        std::cout << "Red score: " << army_red.get_score() << std::endl;
     } else
     {
 //        auto it = std::find_if(army_blue.get_archers().begin(), army_blue.get_archers().end(), predicate);
 //        army_blue.get_archers().erase(it);
         army_blue.increase_score();
-        std::cout << "Blue score: " << army_blue.get_score() << std::endl;
     }
 }
 

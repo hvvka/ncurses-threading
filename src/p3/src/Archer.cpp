@@ -23,22 +23,19 @@ void Archer::get_shot()
 
 void Archer::shot_enemy(std::vector<Archer> &enemies)
 {
+    if (enemies.empty()) return;
     auto random_enemy_index = rand() % enemies.size();
     auto it = enemies.begin();
     advance(it, random_enemy_index);
     // todo add shot probability
-    if (it->get_health_points() > 0)
+    it->get_shot();
+    std::cout << it->get_position().first << "," << it->get_position().second << " got shot! Health: "
+              << it->get_health_points() << std::endl;
+    if (it->get_health_points() < 1)
     {
-        it->get_shot();
-        std::cout << it->get_position().first << "," << it->get_position().second << " got shot! Health: "
-                  << it->get_health_points() << std::endl;
-    } else
-    {
-        std::cout << it->get_position().first << "," << it->get_position().second << " being erased! Health: "
-                  << it->get_health_points() << std::endl;
         enemies.erase(it);
-        std::cout << "Archers " << enemies.size() << std::endl;
     }
+    std::cout << "Archers " << enemies.size() << std::endl;
 }
 
 int Archer::get_health_points() const
