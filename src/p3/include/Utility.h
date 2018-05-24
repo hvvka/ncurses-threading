@@ -7,7 +7,7 @@
 
 namespace utility
 {
-    constexpr auto ARCHERS_COUNT = 24;
+    constexpr auto ARCHERS_COUNT = 5;
 } // namespace utility
 
 #endif //ARCHERS_UTILITY_H

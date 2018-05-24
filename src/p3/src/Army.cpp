@@ -24,6 +24,11 @@ Army::Army(army_type army_color) : army_color{army_color}
     }
 }
 
+Army::Army(const Army &copy_army) : army_color{copy_army.army_color}, score{-1}, army{copy_army.army}
+{
+
+}
+
 std::vector<Archer> &Army::get_archers()
 {
     return army;

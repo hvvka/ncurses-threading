@@ -25,6 +25,8 @@ public:
 
     void end();
 
+    void win_game(WINDOW *battle_window, army_type type);
+
 private:
     void init_ncurses();
 

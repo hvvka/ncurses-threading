@@ -28,7 +28,7 @@ void Curses::init_ncurses()
 void Curses::init_colors()
 {
     start_color();
-    init_color(COLOR_WHITE, 100, 100, 100);
+    init_color(COLOR_WHITE, 250, 250, 250);
     init_color(COLOR_RED, 900, 200, 300);
     init_color(COLOR_BLUE, 200, 200, 900);
     init_pair(1, COLOR_YELLOW, COLOR_WHITE);
@@ -44,6 +44,7 @@ void Curses::init_colors()
 
     init_pair(9, COLOR_BLUE, COLOR_WHITE);
     init_pair(10, COLOR_RED, COLOR_WHITE);
+    init_pair(11, COLOR_BLACK, COLOR_BLACK);
 }
 
 std::pair<WINDOW *, WINDOW *> Curses::init_windows()
@@ -104,6 +105,10 @@ int Curses::get_archer_color_pair(Archer &archer)
 {
     army_type color = archer.get_army_color();
     int hp = archer.get_health_points();
+    if (hp == 0)
+    {
+        return 11;
+    }
     int offset = (color == army_type::BLUE) ? 2 : 5;
     return hp + offset;
 }
@@ -128,3 +133,19 @@ void Curses::end()
     getch();
     endwin();
 }
+
+void Curses::win_game(WINDOW *battle_window, army_type type)
+{
+    auto max_window_size = get_max_window_size(battle_window);
+
+    werase(battle_window);
+    box(battle_window, 0, 0);
+    int color = (type == army_type::RED) ? 10 : 9;
+    std::string team = (type == army_type::RED) ? "RED" : "BLUE";
+    wattron(battle_window, COLOR_PAIR(color));
+
+    std::string message = "Team " + team + " won!";
+    mvwprintw(battle_window, max_window_size.first / 2, max_window_size.second / 2 - message.length() / 2,
+              message.c_str());
+}
+

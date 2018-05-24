@@ -15,11 +15,11 @@ class Archer
 public:
     Archer(std::pair<int, int> position, army_type army_color);
 
-    int get_health_points();
+    int get_health_points() const;
 
-    std::pair<int, int> get_position();
+    std::pair<int, int> get_position() const;
 
-    army_type get_army_color();
+    army_type get_army_color() const;
 
     void get_shot();
 

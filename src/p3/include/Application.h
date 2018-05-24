@@ -9,6 +9,7 @@
 #include "Curses.h"
 
 #include <utility>
+#include <condition_variable>
 
 class Application final
 {
@@ -19,7 +20,7 @@ public:
 
 private:
     bool running;
-    Curses ncurses;
+//    Curses ncurses;
     Army army_red;
     Army army_blue;
     std::pair<WINDOW *, WINDOW *> windows;
@@ -29,6 +30,10 @@ private:
     void refresh_windows(WINDOW *battle_window, WINDOW *info_window);
 
     void start_archer(Archer &archer);
+
+    void win_red();
+
+    void win_blue();
 };
 
 
