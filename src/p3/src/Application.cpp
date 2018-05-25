@@ -24,8 +24,7 @@ Application::Application() : running{true}, ncurses{}, army_red{army_type::RED},
 void Application::start_threads()
 {
     std::thread refresh_thread(&Application::refresh_windows, this);
-    std::thread win_red_thread(&Application::win_red, this);
-    std::thread win_blue_thread(&Application::win_blue, this);
+    std::thread win_thread(&Application::win, this);
 
     // create archers threads
     std::vector<std::thread> archers_threads;
@@ -43,9 +42,7 @@ void Application::start_threads()
 
     Semaphore::get_condition_variable().notify_one();
 
-    win_blue_thread.join();
-    win_red_thread.join();
-
+    win_thread.join();
     refresh_thread.join();
 }
 
@@ -72,11 +69,15 @@ void Application::start_archer(Archer &archer)
         if (archer.get_army_color() == army_type::RED)
         {
             if (archer.shot_enemy(army_blue.get_archers()))
+            {
                 army_red.increase_score();
+            }
         } else
         {
             if (archer.shot_enemy(army_red.get_archers()))
+            {
                 army_blue.increase_score();
+            }
         }
     }
 
@@ -93,22 +94,20 @@ Application::~Application()
     ncurses.end();
 }
 
-void Application::win_red()
+void Application::win()
 {
     while (running)
     {
         std::unique_lock<std::mutex> lock(Semaphore::get_mutex());
-        Semaphore::get_condition_variable().wait(lock, [this] { return army_red.get_archers().empty(); });
-        ncurses.win_game(windows.first, army_red.get_color());
-    }
-}
-
-void Application::win_blue()
-{
-    while (running)
-    {
-        std::unique_lock<std::mutex> lock(Semaphore::get_mutex());
-        Semaphore::get_condition_variable().wait(lock, [this] { return army_blue.get_archers().empty(); });
-        ncurses.win_game(windows.first, army_red.get_color());
+        Semaphore::get_condition_variable().wait(lock, [this] {
+            return army_red.get_archers().empty() || army_blue.get_archers().empty();
+        });
+        if (army_red.get_archers().empty())
+        {
+            ncurses.win_game(windows.first, army_red.get_color());
+        } else
+        {
+            ncurses.win_game(windows.first, army_red.get_color());
+        }
     }
 }

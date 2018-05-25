@@ -31,9 +31,7 @@ private:
 
     void start_archer(Archer &archer);
 
-    void win_red();
-
-    void win_blue();
+    void win();
 };
 
 
