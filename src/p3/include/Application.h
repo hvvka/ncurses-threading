@@ -27,11 +27,13 @@ private:
 
     void start_threads();
 
-    void refresh_windows();
+    void refresh_windows_periodically();
 
     void start_archer(Archer &archer);
 
     void win();
+
+    void refresh_windows();
 };
 
 

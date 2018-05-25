@@ -20,25 +20,24 @@ void Archer::get_shot()
     }
 }
 
-bool Archer::shot_enemy(std::vector<Archer> &enemies)
+std::vector<Archer>::iterator Archer::shot_enemy(std::vector<Archer> &enemies)
 {
     if (enemies.empty())
     {
-        return false;
+        return enemies.end();
     }
     auto random_enemy_index = rand() % enemies.size();
     auto it = enemies.begin();
     advance(it, random_enemy_index);
-    if ((rand() % 100) < 20)  // todo random numbers from /dev/null
+    if ((rand() % 100) < 10)  // todo random numbers from /dev/null
     {
         it->get_shot();
     }
-    if (it->get_health_points() < 0)
+    if (it->get_health_points() == 0)
     {
-        enemies.erase(it);
-        return true;
+        return it;
     }
-    return false;
+    return enemies.end();
 }
 
 int Archer::get_health_points() const

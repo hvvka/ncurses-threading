@@ -23,7 +23,7 @@ Application::Application() : running{true}, ncurses{}, army_red{army_type::RED},
 
 void Application::start_threads()
 {
-    std::thread refresh_thread(&Application::refresh_windows, this);
+    std::thread refresh_thread(&Application::refresh_windows_periodically, this);
     std::thread win_thread(&Application::win, this);
 
     // create archers threads
@@ -46,17 +46,22 @@ void Application::start_threads()
     refresh_thread.join();
 }
 
-void Application::refresh_windows()
+void Application::refresh_windows_periodically()
 {
     while (running)
     {
         usleep(REFRESH_DELAY);
         std::unique_lock<std::mutex> lock(Semaphore::get_mutex());
-        ncurses.place_army(windows, army_red);
-        ncurses.place_army(windows, army_blue);
-        wrefresh(windows.first);
-        wrefresh(windows.second);
+        refresh_windows();
     }
+}
+
+void Application::refresh_windows()
+{
+    ncurses.place_army(windows, army_red);
+    ncurses.place_army(windows, army_blue);
+    wrefresh(windows.first);
+    wrefresh(windows.second);
 }
 
 void Application::start_archer(Archer &archer)
@@ -68,14 +73,20 @@ void Application::start_archer(Archer &archer)
         std::unique_lock<std::mutex> lock(Semaphore::get_mutex());
         if (archer.get_army_color() == army_type::RED)
         {
-            if (archer.shot_enemy(army_blue.get_archers()))
+            auto it = archer.shot_enemy(army_blue.get_archers());
+            if (it != army_blue.get_archers().end())
             {
+                ncurses.place_army(windows, army_blue);
+                army_blue.kill_archer(it);
                 army_red.increase_score();
             }
         } else
         {
-            if (archer.shot_enemy(army_red.get_archers()))
+            auto it = archer.shot_enemy(army_red.get_archers());
+            if (it != army_red.get_archers().end())
             {
+                ncurses.place_army(windows, army_red);
+                army_red.kill_archer(it);
                 army_blue.increase_score();
             }
         }
@@ -104,7 +115,7 @@ void Application::win()
         });
         if (army_red.get_archers().empty())
         {
-            ncurses.win_game(windows.first, army_red.get_color());
+            ncurses.win_game(windows.first, army_blue.get_color());
         } else
         {
             ncurses.win_game(windows.first, army_red.get_color());
