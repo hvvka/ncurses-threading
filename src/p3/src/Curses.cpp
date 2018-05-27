@@ -3,11 +3,19 @@
 //
 
 #include "Curses.h"
+#include "Semaphore.h"
 
 #include <thread>
 #include <sstream>
+#include <random>
+#include <unistd.h>
 
 #define HP(hp, c) ((hp)|COLOR_PAIR(c))
+
+namespace
+{
+    constexpr auto PIF_PAF_DELAY = 900000;
+} // namespace
 
 Curses::Curses()
 {
@@ -27,9 +35,12 @@ void Curses::init_ncurses()
 void Curses::init_colors()
 {
     start_color();
-    init_color(COLOR_WHITE, 100, 100, 100);
-    init_color(COLOR_RED, 900, 150, 250);
-    init_color(COLOR_BLUE, 150, 150, 900);
+    init_color(COLOR_WHITE, 120, 120, 120);
+    init_color(COLOR_RED, 800, 150, 250);
+    init_color(COLOR_BLUE, 150, 150, 800);
+    init_color(COLOR_CYAN, 150, 150, 330);
+    init_color(COLOR_MAGENTA, 330, 150, 150);
+
     init_pair(1, COLOR_YELLOW, COLOR_WHITE);
     init_pair(2, COLOR_YELLOW, COLOR_WHITE);
 
@@ -44,6 +55,9 @@ void Curses::init_colors()
     init_pair(9, COLOR_BLUE, COLOR_WHITE);
     init_pair(10, COLOR_RED, COLOR_WHITE);
     init_pair(11, COLOR_BLACK, COLOR_BLACK);
+
+    init_pair(12, COLOR_CYAN, COLOR_WHITE);
+    init_pair(13, COLOR_MAGENTA, COLOR_WHITE);
 }
 
 std::pair<WINDOW *, WINDOW *> Curses::init_windows()
@@ -87,6 +101,29 @@ void Curses::place_archers(WINDOW *battle_window, Army &army)
     }
 }
 
+void Curses::show_pif_paf(WINDOW *battle_window, int team)
+{
+    auto max_window_size = get_max_window_size(battle_window);
+    int y = max_window_size.first / 2 + rand() % max_window_size.first / 4 - max_window_size.first / 4;
+    int x = max_window_size.second / 2 + rand() % max_window_size.second / 5 - max_window_size.first / 5;
+    int color = (team == 1) ? 13 : 12;
+    wattron(battle_window, COLOR_PAIR(color));
+    std::string message = "*pif paf*";
+    std::string spaces = "         ";
+
+    Semaphore::lock();
+    mvwprintw(battle_window, y, x, message.c_str());
+    refresh();
+    Semaphore::unlock();
+
+    usleep(PIF_PAF_DELAY);
+
+    Semaphore::lock();
+    mvwprintw(battle_window, y, x, spaces.c_str());
+    refresh();
+    Semaphore::unlock();
+}
+
 void Curses::print_archer(WINDOW *battle_window, std::pair<int, int> &coords, Archer &archer)
 {
     auto position = archer.get_position();
@@ -100,6 +137,7 @@ void Curses::print_archer(WINDOW *battle_window, std::pair<int, int> &coords, Ar
     mvwaddch(battle_window, y, x, HP(hp, archer_color));
 }
 
+
 int Curses::get_archer_color_pair(Archer &archer)
 {
     army_type color = archer.get_army_color();
@@ -111,7 +149,6 @@ int Curses::get_archer_color_pair(Archer &archer)
     int offset = (color == army_type::BLUE) ? 2 : 5;
     return hp + offset;
 }
-
 
 void Curses::print_score(WINDOW *info_window, Army &army)
 {
@@ -138,11 +175,11 @@ void Curses::win_game(WINDOW *battle_window, army_type type)
     auto max_window_size = get_max_window_size(battle_window);
 
     werase(battle_window);
-    box(battle_window, 0, 0);
     int color = (type == army_type::RED) ? 10 : 9;
     std::string team = (type == army_type::RED) ? "RED" : "BLUE";
     wattron(battle_window, COLOR_PAIR(color));
 
+    box(battle_window, 0, 0);
     std::string message = "Team " + team + " won!";
     mvwprintw(battle_window, max_window_size.first / 2, max_window_size.second / 2 - message.length() / 2,
               message.c_str());

@@ -23,6 +23,8 @@ public:
 
     void place_army(std::pair<WINDOW *, WINDOW *> &windows, Army &army);
 
+    void show_pif_paf(WINDOW *battle_window, int team);
+
     void end();
 
     void win_game(WINDOW *battle_window, army_type type);

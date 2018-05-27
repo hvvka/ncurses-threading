@@ -26,6 +26,7 @@ private:
     Army army_blue;
     std::pair<WINDOW *, WINDOW *> windows;
     std::atomic<int> random_number{};
+    int pif_paf{0};
 
     void start_threads();
 
@@ -36,6 +37,8 @@ private:
     void start_archer(Archer &archer);
 
     void generate_random_number();
+
+    void show_pif_paf();
 
     void win();
 };

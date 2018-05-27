@@ -29,6 +29,7 @@ void Application::start_threads()
     std::thread refresh_thread(&Application::refresh_windows_periodically, this);
     std::thread win_thread(&Application::win, this);
     std::thread random_number_thread(&Application::generate_random_number, this);
+    std::thread show_pif_paf_thread(&Application::show_pif_paf, this);
 
     // create archers' threads
     std::vector<std::thread> archers_threads;
@@ -46,6 +47,7 @@ void Application::start_threads()
 
     Semaphore::get_condition_variable().notify_one();
 
+    show_pif_paf_thread.join();
     random_number_thread.join();
     win_thread.join();
     refresh_thread.join();
@@ -78,6 +80,7 @@ void Application::start_archer(Archer &archer)
                archer.get_health_points() == record.get_health_points() &&
                archer.get_army_color() == record.get_army_color();
     };
+
     while (std::find_if(std::begin(archers_army), std::end(archers_army), predicate) != std::end(archers_army) &&
            !army_blue.get_archers().empty() && !army_red.get_archers().empty())
     {
@@ -85,6 +88,8 @@ void Application::start_archer(Archer &archer)
         std::unique_lock<std::mutex> lock(Semaphore::get_mutex());
         if (archer.get_army_color() == army_type::RED)
         {
+            pif_paf = 1;
+            Semaphore::get_condition_variable().notify_all();
             auto it = archer.shot_enemy(army_blue.get_archers(), random_number);
             if (it != army_blue.get_archers().end())
             {
@@ -92,8 +97,10 @@ void Application::start_archer(Archer &archer)
                 army_blue.kill_archer(it);
                 army_red.increase_score();
             }
-        } else
+        } else  // blue
         {
+            pif_paf = 2;
+            Semaphore::get_condition_variable().notify_all();
             auto it = archer.shot_enemy(army_red.get_archers(), random_number);
             if (it != army_red.get_archers().end())
             {
@@ -129,6 +136,19 @@ void Application::generate_random_number()
     } else
     {
         std::cerr << "Failed to open /dev/urandom" << std::endl;
+    }
+}
+
+void Application::show_pif_paf()
+{
+    while (running)
+    {
+        {
+            std::unique_lock<std::mutex> lock(Semaphore::get_mutex());
+            Semaphore::get_condition_variable().wait(lock, [this] { return pif_paf != 0; });
+        }
+        ncurses.show_pif_paf(windows.first, pif_paf);
+        pif_paf = 0;
     }
 }
 
