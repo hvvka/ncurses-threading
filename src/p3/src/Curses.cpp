@@ -3,7 +3,6 @@
 //
 
 #include "Curses.h"
-//#include "Semaphore.h"
 
 #include <thread>
 #include <sstream>
@@ -29,8 +28,8 @@ void Curses::init_colors()
 {
     start_color();
     init_color(COLOR_WHITE, 100, 100, 100);
-    init_color(COLOR_RED, 900, 200, 300);
-    init_color(COLOR_BLUE, 200, 200, 900);
+    init_color(COLOR_RED, 900, 150, 250);
+    init_color(COLOR_BLUE, 150, 150, 900);
     init_pair(1, COLOR_YELLOW, COLOR_WHITE);
     init_pair(2, COLOR_YELLOW, COLOR_WHITE);
 
@@ -148,4 +147,3 @@ void Curses::win_game(WINDOW *battle_window, army_type type)
     mvwprintw(battle_window, max_window_size.first / 2, max_window_size.second / 2 - message.length() / 2,
               message.c_str());
 }
-

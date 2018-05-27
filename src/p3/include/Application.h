@@ -10,6 +10,7 @@
 
 #include <utility>
 #include <condition_variable>
+#include <atomic>
 
 class Application final
 {
@@ -24,16 +25,19 @@ private:
     Army army_red;
     Army army_blue;
     std::pair<WINDOW *, WINDOW *> windows;
+    std::atomic<int> random_number{};
 
     void start_threads();
 
     void refresh_windows_periodically();
 
+    void refresh_windows();
+
     void start_archer(Archer &archer);
 
-    void win();
+    void generate_random_number();
 
-    void refresh_windows();
+    void win();
 };
 
 

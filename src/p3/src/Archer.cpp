@@ -7,6 +7,11 @@
 
 #include <random>
 
+namespace
+{
+    constexpr auto SHOT_PROBABILITY = 25;
+} // namespace
+
 Archer::Archer(std::pair<int, int> position, army_type army_color) : position{std::move(position)},
                                                                      army_color{army_color}
 {}
@@ -14,13 +19,9 @@ Archer::Archer(std::pair<int, int> position, army_type army_color) : position{st
 void Archer::get_shot()
 {
     --health_points;
-    if (health_points == 0)
-    {
-//        Semaphore::get_condition_variable().notify_one(); // todo repaint and increase score
-    }
 }
 
-std::vector<Archer>::iterator Archer::shot_enemy(std::vector<Archer> &enemies)
+std::vector<Archer>::iterator Archer::shot_enemy(std::vector<Archer> &enemies, int shot_chance)
 {
     if (enemies.empty())
     {
@@ -29,7 +30,7 @@ std::vector<Archer>::iterator Archer::shot_enemy(std::vector<Archer> &enemies)
     auto random_enemy_index = rand() % enemies.size();
     auto it = enemies.begin();
     advance(it, random_enemy_index);
-    if ((rand() % 100) < 10)  // todo random numbers from /dev/null
+    if ((shot_chance % 100) < SHOT_PROBABILITY)
     {
         it->get_shot();
     }

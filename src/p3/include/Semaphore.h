@@ -7,6 +7,7 @@
 
 #include <mutex>
 #include <condition_variable>
+#include <atomic>
 
 class Semaphore
 {
@@ -28,9 +29,9 @@ public:
     static std::condition_variable &get_condition_variable();
 
 private:
-    static std::condition_variable cv;
     static std::mutex mx;
-    static int counter;
+    static std::condition_variable cv;
+    static std::atomic<int> counter;
 };
 
 

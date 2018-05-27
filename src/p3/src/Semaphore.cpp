@@ -6,13 +6,12 @@
 
 std::mutex Semaphore::mx;
 std::condition_variable Semaphore::cv;
-int Semaphore::counter;
+std::atomic<int> Semaphore::counter;
 
 void Semaphore::notify()
 {
-    std::unique_lock<std::mutex> lock(mx);
     ++counter;
-    cv.notify_one();
+    cv.notify_all();
 }
 
 void Semaphore::wait()
@@ -41,6 +40,3 @@ std::mutex &Semaphore::get_mutex()
 {
     return mx;
 }
-
-
-

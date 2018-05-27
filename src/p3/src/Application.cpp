@@ -8,11 +8,14 @@
 
 #include <thread>
 #include <unistd.h>
+#include <fstream>
+#include <iostream>
+#include <random>
 
 namespace
 {
     constexpr auto REFRESH_DELAY = 60000;
-    constexpr auto SHOT_DELAY = 1000000;
+    constexpr auto SHOT_DELAY = 100000;
 } // namespace
 
 Application::Application() : running{true}, ncurses{}, army_red{army_type::RED}, army_blue{army_type::BLUE}
@@ -25,8 +28,9 @@ void Application::start_threads()
 {
     std::thread refresh_thread(&Application::refresh_windows_periodically, this);
     std::thread win_thread(&Application::win, this);
+    std::thread random_number_thread(&Application::generate_random_number, this);
 
-    // create archers threads
+    // create archers' threads
     std::vector<std::thread> archers_threads;
     archers_threads.reserve(utility::ARCHERS_COUNT * 2);
     for (int i = 0; i < utility::ARCHERS_COUNT; i++)
@@ -42,6 +46,7 @@ void Application::start_threads()
 
     Semaphore::get_condition_variable().notify_one();
 
+    random_number_thread.join();
     win_thread.join();
     refresh_thread.join();
 }
@@ -66,14 +71,21 @@ void Application::refresh_windows()
 
 void Application::start_archer(Archer &archer)
 {
-    Army &opponent_army = archer.get_army_color() == army_type::BLUE ? army_red : army_blue;
-    while (archer.get_health_points() > 0 && !opponent_army.get_archers().empty())
+    std::vector<Archer> &archers_army =
+            archer.get_army_color() == army_type::BLUE ? army_blue.get_archers() : army_red.get_archers();
+    auto predicate = [&archer](const Archer &record) {
+        return archer.get_position() == record.get_position() &&
+               archer.get_health_points() == record.get_health_points() &&
+               archer.get_army_color() == record.get_army_color();
+    };
+    while (std::find_if(std::begin(archers_army), std::end(archers_army), predicate) != std::end(archers_army) &&
+           !army_blue.get_archers().empty() && !army_red.get_archers().empty())
     {
-        usleep(SHOT_DELAY);
+        Semaphore::wait();
         std::unique_lock<std::mutex> lock(Semaphore::get_mutex());
         if (archer.get_army_color() == army_type::RED)
         {
-            auto it = archer.shot_enemy(army_blue.get_archers());
+            auto it = archer.shot_enemy(army_blue.get_archers(), random_number);
             if (it != army_blue.get_archers().end())
             {
                 ncurses.place_army(windows, army_blue);
@@ -82,7 +94,7 @@ void Application::start_archer(Archer &archer)
             }
         } else
         {
-            auto it = archer.shot_enemy(army_red.get_archers());
+            auto it = archer.shot_enemy(army_red.get_archers(), random_number);
             if (it != army_red.get_archers().end())
             {
                 ncurses.place_army(windows, army_red);
@@ -91,34 +103,59 @@ void Application::start_archer(Archer &archer)
             }
         }
     }
-
-    if (opponent_army.get_archers().empty())
-    {
-        army_blue.get_archers().clear();
-        army_red.get_archers().clear();
-    }
 }
 
-Application::~Application()
+void Application::generate_random_number()
 {
-    running = false;
-    ncurses.end();
+    unsigned long long int random_value = 0;
+    size_t size = sizeof(random_value);
+    std::ifstream urandom("/dev/urandom", std::ios::in | std::ios::binary);
+    if (urandom)
+    {
+        while (running)
+        {
+            usleep(SHOT_DELAY);
+            urandom.read(reinterpret_cast<char *>(&random_value), size);
+            if (urandom)
+            {
+                random_number = random_value % 100;
+            } else  // Reading failure
+            {
+                random_number = rand() % 100;
+            }
+            Semaphore::notify();
+        }
+        urandom.close();
+    } else
+    {
+        std::cerr << "Failed to open /dev/urandom" << std::endl;
+    }
 }
 
 void Application::win()
 {
-    while (running)
-    {
-        std::unique_lock<std::mutex> lock(Semaphore::get_mutex());
-        Semaphore::get_condition_variable().wait(lock, [this] {
-            return army_red.get_archers().empty() || army_blue.get_archers().empty();
-        });
+    std::unique_lock<std::mutex> lock(Semaphore::get_mutex());
+    Semaphore::get_condition_variable().wait(lock, [this] {
         if (army_red.get_archers().empty())
         {
             ncurses.win_game(windows.first, army_blue.get_color());
-        } else
+            return true;
+        } else if (army_blue.get_archers().empty())
         {
             ncurses.win_game(windows.first, army_red.get_color());
+            return true;
         }
-    }
+        return false;
+    });
+    running = false;
+    army_blue.get_archers().clear();
+    army_red.get_archers().clear();
+    refresh_windows();
+    ncurses.end();
+}
+
+Application::~Application()
+{
+    ncurses.end();
+    running = false;
 }
