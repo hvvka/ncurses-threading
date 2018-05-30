@@ -9,7 +9,7 @@
 
 namespace
 {
-    constexpr auto SHOT_PROBABILITY = 55;
+    constexpr auto SHOT_PROBABILITY = 35;
 } // namespace
 
 Archer::Archer(std::pair<int, int> position, army_type army_color) : position{std::move(position)},

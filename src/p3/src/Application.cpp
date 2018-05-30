@@ -145,10 +145,10 @@ void Application::show_pif_paf()
     {
         {
             std::unique_lock<std::mutex> lock(Semaphore::get_mutex());
+            pif_paf = 0;
             Semaphore::get_condition_variable().wait(lock, [this] { return pif_paf != 0; });
         }
         ncurses.show_pif_paf(windows.first, pif_paf);
-        pif_paf = 0;
     }
 }
 
@@ -167,6 +167,7 @@ void Application::win()
         }
         return false;
     });
+
     running = false;
     army_blue.get_archers().clear();
     army_red.get_archers().clear();
