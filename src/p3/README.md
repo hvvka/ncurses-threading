@@ -1,13 +1,15 @@
 # archers-simulation
 
 
-Game preview:
-
 ![Preview](img/preview.png)
+
+Two armies of archers on the battle field.
+Every living archer is shooting to the enemy in his separate thread till the winner emerges.
+
 
 ----------
 
-## Projects assumptions
+## Project assumptions
 
 ![Mockup](img/archers.png)
 

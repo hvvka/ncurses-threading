@@ -1,8 +1,24 @@
-## Does work under MacOS only
-Docker failed so far
+# snake
 
-#### Build with:
-`make`
+![Preview](preview.png)
 
-#### Remove garbage executable:
-`make clean`
+Four snakes in separate threads crawling in random directions.
+
+Game aims to use Ncurses library within many threads. Originally, the library not thread-safe.
+
+
+## Build
+
+```bash
+make
+./Snake
+```
+
+_Note:_ Doesn't work for provided Docker image. MacOS can handle it though.
+
+
+## Remove garbage executable
+
+```bash
+make clean
+```
